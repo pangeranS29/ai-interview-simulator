@@ -111,3 +111,74 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	logger.Log.Info().Int("user_id", user.ID).Msg("Login: success")
 	c.JSON(http.StatusOK, models.LoginResponse{Token: tokenString, User: user})
 }
+
+// @Summary Change user password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.ChangePasswordRequest true "Change Password Request"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /auth/change-password [put]
+func (h *AuthHandler) ChangePassword(c *gin.Context) {
+	userID := c.GetInt("user_id")
+
+	var req models.ChangePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Log.Error().Err(err).Int("user_id", userID).Msg("ChangePassword: invalid request")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get current password from database
+	var user models.User
+	var currentHashedPassword string
+	err := h.DB.QueryRow(
+		"SELECT id, email, password, created_at FROM users WHERE id = $1",
+		userID,
+	).Scan(&user.ID, &user.Email, &currentHashedPassword, &user.CreatedAt)
+
+	if err == sql.ErrNoRows {
+		logger.Log.Warn().Int("user_id", userID).Msg("ChangePassword: user not found")
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if err != nil {
+		logger.Log.Error().Err(err).Int("user_id", userID).Msg("ChangePassword: database error")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user data"})
+		return
+	}
+
+	// Verify old password
+	if err := bcrypt.CompareHashAndPassword([]byte(currentHashedPassword), []byte(req.OldPassword)); err != nil {
+		logger.Log.Warn().Int("user_id", userID).Msg("ChangePassword: wrong old password")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Password lama tidak sesuai"})
+		return
+	}
+
+	// Hash new password
+	newHashed, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("ChangePassword: failed to hash new password")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash new password"})
+		return
+	}
+
+	// Update password in database
+	_, err = h.DB.Exec(
+		"UPDATE users SET password = $1 WHERE id = $2",
+		string(newHashed), userID,
+	)
+
+	if err != nil {
+		logger.Log.Error().Err(err).Int("user_id", userID).Msg("ChangePassword: failed to update password")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		return
+	}
+
+	logger.Log.Info().Int("user_id", userID).Msg("ChangePassword: success")
+	c.JSON(http.StatusOK, gin.H{"message": "Password berhasil diubah"})
+}
