@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "./api-service",
+    "startCommand": "go run main.go",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
