@@ -107,17 +107,6 @@ Swagger UI tersedia di: `http://localhost:8080/swagger/index.html`
 - `PUT /sessions/:id/finish` - Selesaikan interview
 - `GET /analytics` - Dashboard analytics
 
-## 🎨 Screenshots
-
-### Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
-
-### Interview
-![Interview](docs/screenshots/interview.png)
-
-### Results
-![Results](docs/screenshots/results.png)
-
 ## 🏆 Kompetisi InaAI
 
 Project ini dibuat untuk kompetisi InaAI dengan fokus pada:
@@ -126,21 +115,8 @@ Project ini dibuat untuk kompetisi InaAI dengan fokus pada:
 - ✅ Real-time progress tracking
 - ✅ Optimasi performa dengan caching
 
-## 📄 License
-
-MIT License - lihat [LICENSE](LICENSE) untuk detail
 
 ## 👥 Contributors
 
 - [pangeranS29](https://github.com/pangeranS29)
 
-## 🙏 Acknowledgments
-
-- InaAI untuk kompetisi dan dukungan
-- OpenAI untuk AI API
-- Community Go & Next.js
-
----
-
-Made with ❤️ for InaAI Competition
-" 

@@ -92,6 +92,12 @@ func main() {
 	{
 		auth.POST("/register", authHandler.Register)
 		auth.POST("/login", authHandler.Login)
+		// Protected auth routes
+		authProtected := auth.Group("/")
+		authProtected.Use(middleware.AuthMiddleware())
+		{
+			authProtected.PUT("/change-password", authHandler.ChangePassword)
+		}
 	}
 
 	// Protected routes
