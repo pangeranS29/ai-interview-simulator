@@ -76,7 +76,7 @@ func main() {
 
 	// CORS
 	allowedOrigins := []string{"http://localhost:3000"}
-	if prodOrigins := os.Getenv("ALLOWED_ORIGINS"); prodOrigins != "" {
+	if prodOrigins := os.Getenv("CORS_ORIGINS"); prodOrigins != "" {
 		allowedOrigins = append(allowedOrigins, prodOrigins)
 	}
 	
