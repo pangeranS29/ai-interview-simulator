@@ -1,0 +1,392 @@
+basePath: /
+definitions:
+  handlers.AnalyticsResponse:
+    properties:
+      category_stats:
+        items:
+          $ref: '#/definitions/handlers.CategoryStat'
+        type: array
+      score_trends:
+        items:
+          $ref: '#/definitions/handlers.ScoreTrend'
+        type: array
+      summary:
+        $ref: '#/definitions/handlers.SessionSummary'
+    type: object
+  handlers.CategoryStat:
+    properties:
+      average_score:
+        type: number
+      category:
+        type: string
+      total_sessions:
+        type: integer
+    type: object
+  handlers.ScoreTrend:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      score:
+        type: integer
+      session_id:
+        type: integer
+    type: object
+  handlers.SessionSummary:
+    properties:
+      average_score:
+        type: number
+      best_score:
+        type: integer
+      completed_sessions:
+        type: integer
+      total_sessions:
+        type: integer
+    type: object
+  models.Answer:
+    properties:
+      answer_text:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      question_id:
+        type: integer
+      session_id:
+        type: integer
+    type: object
+  models.AnswerWithFeedback:
+    properties:
+      answer:
+        $ref: '#/definitions/models.Answer'
+      feedback:
+        $ref: '#/definitions/models.Feedback'
+      question:
+        $ref: '#/definitions/models.Question'
+    type: object
+  models.CreateSessionRequest:
+    properties:
+      category:
+        type: string
+    required:
+    - category
+    type: object
+  models.Feedback:
+    properties:
+      answer_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      score:
+        type: integer
+      strengths:
+        type: string
+      suggestion:
+        type: string
+      weaknesses:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.Question:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      difficulty:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.Session:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      score:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      version:
+        type: integer
+    type: object
+  models.SessionDetail:
+    properties:
+      answers:
+        items:
+          $ref: '#/definitions/models.AnswerWithFeedback'
+        type: array
+      session:
+        $ref: '#/definitions/models.Session'
+    type: object
+  models.SubmitAnswerRequest:
+    properties:
+      answer_text:
+        type: string
+      question_id:
+        type: integer
+    required:
+    - answer_text
+    - question_id
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API untuk AI-Powered Interview Simulator
+  title: AI-Powered Interview Simulator API
+  version: "1.0"
+paths:
+  /analytics:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AnalyticsResponse'
+      security:
+      - BearerAuth: []
+      summary: Get AI analytics dashboard
+      tags:
+      - analytics
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Register Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register user baru
+      tags:
+      - auth
+  /questions:
+    get:
+      parameters:
+      - description: Category (behavioral/technical/situational)
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Question'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get pertanyaan berdasarkan kategori
+      tags:
+      - questions
+  /sessions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Session'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get semua sesi interview
+      tags:
+      - sessions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create Session Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Session'
+      security:
+      - BearerAuth: []
+      summary: Buat sesi interview baru
+      tags:
+      - sessions
+  /sessions/{id}:
+    get:
+      parameters:
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SessionDetail'
+      security:
+      - BearerAuth: []
+      summary: Get detail sesi interview
+      tags:
+      - sessions
+  /sessions/{id}/answers:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Submit Answer Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SubmitAnswerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Answer'
+      security:
+      - BearerAuth: []
+      summary: Submit jawaban interview
+      tags:
+      - sessions
+  /sessions/{id}/finish:
+    put:
+      parameters:
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Version
+        in: query
+        name: version
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Session'
+      security:
+      - BearerAuth: []
+      summary: Selesaikan sesi interview
+      tags:
+      - sessions
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
