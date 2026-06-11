@@ -1,0 +1,58 @@
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+README.md
+LICENSE
+docs/
+
+# CI/CD
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Frontend specific
+frontend/.next/
+frontend/out/
+frontend/.cache/
+frontend/coverage/
+
+# Backend specific
+api-service/tmp/
+api-service/coverage.out
+
+# Testing
+coverage/
+*.test
+*.out

@@ -254,6 +254,33 @@ func (h *SessionHandler) FinishSession(c *gin.Context) {
 		return
 	}
 
+	// Cek apakah semua jawaban sudah punya feedback
+	var totalAnswers, totalFeedbacks int
+	h.DB.QueryRow("SELECT COUNT(*) FROM answers WHERE session_id = $1", sessionID).Scan(&totalAnswers)
+	h.DB.QueryRow(
+		`SELECT COUNT(*) FROM feedbacks f
+		JOIN answers a ON a.id = f.answer_id
+		WHERE a.session_id = $1`,
+		sessionID,
+	).Scan(&totalFeedbacks)
+
+	logger.Log.Info().
+		Int("session_id", sessionID).
+		Int("total_answers", totalAnswers).
+		Int("total_feedbacks", totalFeedbacks).
+		Msg("FinishSession: checking feedbacks")
+
+	// Jika feedback belum lengkap, return error dengan info
+	if totalAnswers > 0 && totalFeedbacks < totalAnswers {
+		logger.Log.Warn().Int("session_id", sessionID).Msg("FinishSession: feedbacks not ready")
+		c.JSON(http.StatusTooEarly, gin.H{
+			"error":           "AI masih menganalisis jawaban, tunggu beberapa saat",
+			"total_answers":   totalAnswers,
+			"total_feedbacks": totalFeedbacks,
+		})
+		return
+	}
+
 	// Hitung rata-rata score dari feedbacks
 	var avgScore sql.NullFloat64
 	h.DB.QueryRow(
@@ -267,6 +294,8 @@ func (h *SessionHandler) FinishSession(c *gin.Context) {
 	if avgScore.Valid {
 		score = int(avgScore.Float64)
 	}
+
+	logger.Log.Info().Int("session_id", sessionID).Int("calculated_score", score).Msg("FinishSession: score calculated")
 
 	// Optimistic locking
 	var session models.Session
@@ -283,6 +312,7 @@ func (h *SessionHandler) FinishSession(c *gin.Context) {
 		return
 	}
 	if err != nil {
+		logger.Log.Error().Err(err).Msg("FinishSession: failed to update session")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to finish session"})
 		return
 	}
