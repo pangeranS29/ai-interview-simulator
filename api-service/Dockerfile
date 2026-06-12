@@ -11,7 +11,7 @@ RUN go mod download
 COPY . .
 
 # Build binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o api-service .
+RUN CGO_ENABLED=0 GOOS=linux go build -o out .
 
 # Run stage
 FROM alpine:latest
@@ -22,8 +22,8 @@ WORKDIR /root/
 RUN apk --no-cache add ca-certificates
 
 # Copy binary from builder
-COPY --from=builder /app/api-service .
+COPY --from=builder /app/out .
 
 EXPOSE 8080
 
-CMD ["./api-service"]
+CMD ["./out"]
