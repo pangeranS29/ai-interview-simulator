@@ -11,7 +11,7 @@ RUN go mod download
 COPY . .
 
 # Build binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o worker-service .
+RUN CGO_ENABLED=0 GOOS=linux go build -o out .
 
 # Run stage
 FROM alpine:latest
@@ -22,6 +22,6 @@ WORKDIR /root/
 RUN apk --no-cache add ca-certificates
 
 # Copy binary from builder
-COPY --from=builder /app/worker-service .
+COPY --from=builder /app/out .
 
-CMD ["./worker-service"]
+CMD ["./out"]
