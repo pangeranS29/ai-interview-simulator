@@ -17,8 +17,9 @@ export default function RegisterPage() {
     try {
       await api.post("/auth/register", { email, password });
       router.push("/login");
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Register gagal");
+    } catch (err) {
+      const axiosError = err as { response?: { data?: { error?: string } } };
+      setError(axiosError.response?.data?.error || "Register gagal");
     } finally {
       setLoading(false);
     }

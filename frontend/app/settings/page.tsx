@@ -49,11 +49,12 @@ export default function SettingsPage() {
         localStorage.removeItem("token");
         router.push("/login");
       }, 2000);
-    } catch (err: any) {
-      if (err.response?.status === 401) {
+    } catch (err) {
+      const axiosError = err as { response?: { status?: number, data?: { error?: string } } };
+      if (axiosError.response?.status === 401) {
         setError("Password lama tidak sesuai");
-      } else if (err.response?.data?.error) {
-        setError(err.response.data.error);
+      } else if (axiosError.response?.data?.error) {
+        setError(axiosError.response.data.error);
       } else {
         setError("Gagal mengubah password. Silakan coba lagi.");
       }

@@ -10,9 +10,12 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  // Ensure Content-Type is set for JSON requests
-  if (!config.headers['Content-Type']) {
-    config.headers['Content-Type'] = 'application/json';
+  // Ensure Content-Type is set for JSON requests (POST, PUT, PATCH, DELETE)
+  const method = config.method?.toLowerCase();
+  if (method && ["post", "put", "patch", "delete"].includes(method)) {
+    if (!config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json';
+    }
   }
   return config;
 });

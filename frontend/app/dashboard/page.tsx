@@ -22,15 +22,7 @@ export default function DashboardPage() {
   const [creating, setCreating] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("behavioral");
 
-  useEffect(() => {
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-    fetchSessions();
-  }, [token]);
-
-  const fetchSessions = async () => {
+  async function fetchSessions() {
     try {
       const res = await api.get("/sessions");
       setSessions(res.data || []);
@@ -39,7 +31,16 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    fetchSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const createSession = async () => {
     setCreating(true);

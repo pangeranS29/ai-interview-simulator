@@ -18,6 +18,26 @@ interface Session {
   version: number;
 }
 
+interface Feedback {
+  id: number;
+  score: number;
+  strengths: string;
+  weaknesses: string;
+  suggestion: string;
+}
+
+interface AnswerWithFeedback {
+  answer: {
+    id: number;
+    session_id: number;
+    question_id: number;
+    answer_text: string;
+    created_at: string;
+  };
+  question: Question;
+  feedback: Feedback | null;
+}
+
 export default function InterviewPage() {
   const router = useRouter();
   const params = useParams();
@@ -34,42 +54,22 @@ export default function InterviewPage() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
-  useEffect(() => {
-    fetchSession();
-  }, []);
-
-  useEffect(() => {
-    if (session) {
-      fetchQuestions();
-    }
-  }, [session]);
-
-  // Auto-check feedback status setiap 3 detik jika ada jawaban yang belum ada feedback
-  useEffect(() => {
-    if (submitted.length > 0 && feedbackStatus.ready < feedbackStatus.total) {
-      const interval = setInterval(() => {
-        fetchSession();
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [submitted, feedbackStatus]);
-
-  const fetchSession = async () => {
+  async function fetchSession() {
     try {
       const res = await api.get(`/sessions/${sessionId}`);
       setSession(res.data.session);
       
       // Update feedback status
-      const answers = res.data.answers || [];
+      const answers: AnswerWithFeedback[] = res.data.answers || [];
       const totalAnswers = answers.length;
-      const readyFeedbacks = answers.filter((a: any) => a.feedback !== null).length;
+      const readyFeedbacks = answers.filter((a: AnswerWithFeedback) => a.feedback !== null).length;
       setFeedbackStatus({ total: totalAnswers, ready: readyFeedbacks });
     } catch (err) {
       console.error(err);
     }
-  };
+  }
 
-  const fetchQuestions = async () => {
+  async function fetchQuestions() {
     try {
       if (!session) return;
       // Fetch hanya 1 soal untuk testing
@@ -80,7 +80,30 @@ export default function InterviewPage() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }
+
+  useEffect(() => {
+    fetchSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (session) {
+      fetchQuestions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
+
+  // Auto-check feedback status setiap 3 detik jika ada jawaban yang belum ada feedback
+  useEffect(() => {
+    if (submitted.length > 0 && feedbackStatus.ready < feedbackStatus.total) {
+      const interval = setInterval(() => {
+        fetchSession();
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitted, feedbackStatus]);
 
   const submitAnswer = async () => {
     if (!answer.trim() || !questions[currentIndex]) return;
@@ -126,14 +149,15 @@ export default function InterviewPage() {
       });
       // Success! Redirect to results
       router.push(`/session/${sessionId}`);
-    } catch (err: any) {
-      if (err.response?.status === 409) {
+    } catch (err) {
+      const axiosError = err as { response?: { status?: number } };
+      if (axiosError.response?.status === 409) {
         setErrorMessage("Terjadi konflik data. Halaman akan di-refresh...");
         setTimeout(() => {
           fetchSession();
           setErrorMessage("");
         }, 2000);
-      } else if (err.response?.status === 425) {
+      } else if (axiosError.response?.status === 425) {
         setErrorMessage("AI masih menganalisis jawaban Anda. Mohon tunggu sebentar...");
       } else {
         setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");

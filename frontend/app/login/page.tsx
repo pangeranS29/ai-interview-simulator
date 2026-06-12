@@ -20,8 +20,9 @@ export default function LoginPage() {
       const res = await api.post("/auth/login", { email, password });
       setAuth(res.data.token, res.data.user);
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Login gagal");
+    } catch (err) {
+      const axiosError = err as { response?: { data?: { error?: string } } };
+      setError(axiosError.response?.data?.error || "Login gagal");
     } finally {
       setLoading(false);
     }

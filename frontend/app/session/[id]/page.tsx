@@ -50,11 +50,7 @@ export default function SessionDetailPage() {
   const [detail, setDetail] = useState<SessionDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDetail();
-  }, []);
-
-  const fetchDetail = async () => {
+  async function fetchDetail() {
     try {
       const res = await api.get(`/sessions/${sessionId}`);
       setDetail(res.data);
@@ -63,7 +59,12 @@ export default function SessionDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    fetchDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const scoreColor = (score: number) => {
     if (score >= 80) return "text-green-600";

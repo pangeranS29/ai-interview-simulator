@@ -37,15 +37,7 @@ export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-    fetchAnalytics();
-  }, [token]);
-
-  const fetchAnalytics = async () => {
+  async function fetchAnalytics() {
     try {
       const res = await api.get("/analytics");
       setAnalytics(res.data);
@@ -54,7 +46,16 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    fetchAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const scoreColor = (score: number) => {
     if (score >= 80) return "text-green-600";
