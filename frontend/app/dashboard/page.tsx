@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("frontend");
+  const [selectedCategory, setSelectedCategory] = useState("behavioral");
 
   useEffect(() => {
     if (!token) {
@@ -59,18 +59,45 @@ export default function DashboardPage() {
   };
 
   const categoryConfig: Record<string, { color: string; gradient: string; icon: string; description: string }> = {
+    behavioral: {
+      color: "blue",
+      gradient: "from-blue-500 to-cyan-600",
+      icon: "💬",
+      description: "Komunikasi, Leadership, Teamwork, Problem Solving"
+    },
+    technical: {
+      color: "purple",
+      gradient: "from-purple-500 to-pink-600",
+      icon: "⚙️",
+      description: "Coding, Sistem Design, Architecture, Best Practices"
+    },
+    situational: {
+      color: "green",
+      gradient: "from-green-500 to-emerald-600",
+      icon: "🎯",
+      description: "Decision Making, Critical Thinking, Adaptability"
+    },
+    // Fallback untuk data lama (backward compatibility)
     frontend: {
       color: "blue",
       gradient: "from-blue-500 to-cyan-600",
       icon: "⚛️",
-      description: "React, Next.js, State Management, CSS, Performance"
+      description: "Legacy: Frontend Development"
     },
     backend: {
       color: "purple",
       gradient: "from-purple-500 to-pink-600",
-      icon: "�",
-      description: "API Design, Database, Authentication, Scalability"
+      icon: "🔧",
+      description: "Legacy: Backend Development"
     },
+  };
+  
+  // Default category untuk data yang tidak dikenal
+  const defaultCategory = {
+    color: "gray",
+    gradient: "from-gray-400 to-gray-600",
+    icon: "❓",
+    description: "Unknown Category"
   };
 
   // Stats calculation
@@ -305,8 +332,12 @@ export default function DashboardPage() {
 
           <div className="space-y-4">
             {sessions.map((session) => {
-              const categoryData = categoryConfig[session.category];
-              const statusData = statusConfig[session.status];
+              const categoryData = categoryConfig[session.category] || defaultCategory;
+              const statusData = statusConfig[session.status] || { 
+                bg: "from-gray-400 to-gray-500", 
+                text: "text-gray-700", 
+                icon: "❓" 
+              };
               
               return (
                 <button

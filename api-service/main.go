@@ -75,7 +75,11 @@ func main() {
 	r := gin.Default()
 
 	// CORS
-	allowedOrigins := []string{"http://localhost:3000"}
+	allowedOrigins := []string{
+		"http://localhost:3000",
+		"http://localhost:3001",
+		"http://localhost:3002",
+	}
 	if prodOrigins := os.Getenv("CORS_ORIGINS"); prodOrigins != "" {
 		allowedOrigins = append(allowedOrigins, prodOrigins)
 	}
