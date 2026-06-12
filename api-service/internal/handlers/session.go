@@ -43,7 +43,12 @@ func (h *SessionHandler) CreateSession(c *gin.Context) {
 
 	var req models.CreateSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Log.Error().Err(err).Int("user_id", userID).Msg("CreateSession: invalid request body")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":  "Request body tidak valid",
+			"detail": err.Error(),
+			"hint":   "Pastikan mengirim JSON dengan field 'category'",
+		})
 		return
 	}
 
@@ -198,7 +203,12 @@ func (h *SessionHandler) SubmitAnswer(c *gin.Context) {
 
 	var req models.SubmitAnswerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Log.Error().Err(err).Int("session_id", sessionID).Msg("SubmitAnswer: invalid request body")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":  "Request body tidak valid",
+			"detail": err.Error(),
+			"hint":   "Pastikan mengirim JSON dengan field 'question_id' dan 'answer_text'",
+		})
 		return
 	}
 
@@ -235,10 +245,11 @@ func (h *SessionHandler) SubmitAnswer(c *gin.Context) {
 
 // @Summary Selesaikan sesi interview
 // @Tags sessions
+// @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Session ID"
-// @Param version query int true "Version"
+// @Param request body object true "Finish Request with version field"
 // @Success 200 {object} models.Session
 // @Router /sessions/{id}/finish [put]
 func (h *SessionHandler) FinishSession(c *gin.Context) {
@@ -250,7 +261,13 @@ func (h *SessionHandler) FinishSession(c *gin.Context) {
 	}
 	var req FinishRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Log.Error().Err(err).Int("session_id", sessionID).Msg("FinishSession: invalid request body")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":       "Request body tidak valid",
+			"detail":      err.Error(),
+			"request_id":  "ad162f0a-0547-452e-b332-7088acf56525",
+			"hint":        "Pastikan mengirim JSON dengan field 'version'",
+		})
 		return
 	}
 

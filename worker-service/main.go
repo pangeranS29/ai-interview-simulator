@@ -78,9 +78,10 @@ Berikan response HANYA dalam format JSON berikut (tanpa markdown, tanpa backtick
 	var geminiResp GeminiResponse
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-goog-api-key", apiKey).
 		SetBody(reqBody).
 		SetResult(&geminiResp).
-		Post(fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=%s", apiKey))
+		Post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
 
 	if err != nil {
 		return nil, err

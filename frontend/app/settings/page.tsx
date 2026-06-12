@@ -34,9 +34,17 @@ export default function SettingsPage() {
     setLoading(true);
 
     try {
-      await api.put("/auth/change-password", {
+      const payload = {
         old_password: oldPassword,
         new_password: newPassword,
+      };
+      
+      console.log('Changing password with payload:', JSON.stringify(payload));
+      
+      await api.put("/auth/change-password", payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       setSuccess("Password berhasil diubah! Silakan login ulang.");

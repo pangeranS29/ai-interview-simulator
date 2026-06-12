@@ -45,10 +45,17 @@ export default function DashboardPage() {
   const createSession = async () => {
     setCreating(true);
     try {
-      const res = await api.post("/sessions", { category: selectedCategory });
+      const payload = { category: selectedCategory };
+      console.log('Creating session with payload:', JSON.stringify(payload));
+      
+      const res = await api.post("/sessions", payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       router.push(`/interview/${res.data.id}`);
     } catch (err) {
-      console.error(err);
+      console.error('Error creating session:', err);
     } finally {
       setCreating(false);
     }
@@ -109,7 +116,6 @@ export default function DashboardPage() {
               <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Interview Simulator
               </h1>
-              <p className="text-xs text-gray-500">Powered by AI - InaAI Competition</p>
             </div>
           </div>
           

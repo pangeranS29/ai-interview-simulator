@@ -110,9 +110,17 @@ export default function InterviewPage() {
     setSubmitting(true);
     setErrorMessage("");
     try {
-      await api.post(`/sessions/${sessionId}/answers`, {
+      const payload = {
         question_id: questions[currentIndex].id,
         answer_text: answer,
+      };
+      
+      console.log('Submitting answer with payload:', JSON.stringify(payload));
+      
+      await api.post(`/sessions/${sessionId}/answers`, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       setSubmitted([...submitted, questions[currentIndex].id]);
       setAnswer("");
@@ -125,8 +133,8 @@ export default function InterviewPage() {
         setCurrentIndex(currentIndex + 1);
       }
     } catch (err) {
+      console.error('Error submitting answer:', err);
       setErrorMessage("Gagal mengirim jawaban. Silakan coba lagi.");
-      console.error(err);
     } finally {
       setSubmitting(false);
     }
@@ -144,13 +152,22 @@ export default function InterviewPage() {
     setFinishing(true);
     setErrorMessage("");
     try {
-      await api.put(`/sessions/${sessionId}/finish`, {
-        version: session.version,
+      const payload = {
+        version: session.version
+      };
+      
+      console.log('Finishing session with payload:', payload);
+      
+      await api.put(`/sessions/${sessionId}/finish`, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       // Success! Redirect to results
       router.push(`/session/${sessionId}`);
     } catch (err) {
-      const axiosError = err as { response?: { status?: number } };
+      console.error('Error finishing session:', err);
+      const axiosError = err as { response?: { status?: number, data?: any } };
       if (axiosError.response?.status === 409) {
         setErrorMessage("Terjadi konflik data. Halaman akan di-refresh...");
         setTimeout(() => {
@@ -160,7 +177,8 @@ export default function InterviewPage() {
       } else if (axiosError.response?.status === 425) {
         setErrorMessage("AI masih menganalisis jawaban Anda. Mohon tunggu sebentar...");
       } else {
-        setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+        const errorMsg = axiosError.response?.data?.error || "Terjadi kesalahan. Silakan coba lagi.";
+        setErrorMessage(errorMsg);
       }
     } finally {
       setFinishing(false);
