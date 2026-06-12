@@ -77,19 +77,7 @@ export default function DashboardPage() {
       icon: "🎯",
       description: "Decision Making, Critical Thinking, Adaptability"
     },
-    // Fallback untuk data lama (backward compatibility)
-    frontend: {
-      color: "blue",
-      gradient: "from-blue-500 to-cyan-600",
-      icon: "⚛️",
-      description: "Legacy: Frontend Development"
-    },
-    backend: {
-      color: "purple",
-      gradient: "from-purple-500 to-pink-600",
-      icon: "🔧",
-      description: "Legacy: Backend Development"
-    },
+   
   };
   
   // Default category untuk data yang tidak dikenal
@@ -217,10 +205,6 @@ export default function DashboardPage() {
           <div className="relative z-10">
             {/* Testing Mode Banner */}
             <div className="inline-flex items-center gap-2 bg-yellow-400/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-              <span className="text-xl">⚡</span>
-              <span className="text-sm font-semibold text-yellow-100">
-                Mode Testing: 1 Soal per Interview
-              </span>
             </div>
 
             <h3 className="text-2xl font-bold text-white mb-3">
