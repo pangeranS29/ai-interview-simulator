@@ -71,7 +71,7 @@ export default function DashboardPage() {
       color: "blue",
       gradient: "from-blue-500 to-cyan-600",
       icon: "💬",
-      description: "Komunikasi, Leadership, Teamwork, Problem Solving"
+      description: "Communication, Leadership, Teamwork, Problem Solving"
     },
     technical: {
       color: "purple",
